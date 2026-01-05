@@ -23,7 +23,7 @@ export const notificationController = {
             if (!req.user) throw new AppError('Not authenticated', 401);
             const { id } = req.params;
 
-            const updated = await notificationService.markAsRead(id, req.user.id);
+            const updated = await notificationService.markAsRead(id, req.user!.id);
             if (!updated) throw new AppError('Notification not found', 404);
 
             res.json(updated);

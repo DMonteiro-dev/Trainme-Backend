@@ -4,8 +4,8 @@ import { connectDatabase, disconnectDatabase } from '../config/database.js';
 import { UserModel } from '../models/user.model.js';
 import { TrainerProfileModel } from '../models/trainerProfile.model.js';
 import { ClientProfileModel } from '../models/clientProfile.model.js';
-import { WorkoutPlanModel } from '../models/workoutPlan.model.js';
-import { SessionBookingModel } from '../models/sessionBooking.model.js';
+import { TrainingPlanModel } from '../models/trainingPlan.model.js';
+import { SessionModel } from '../models/session.model.js';
 import { ProgressLogModel } from '../models/progressLog.model.js';
 import { MessageModel } from '../models/message.model.js';
 import { ReviewModel } from '../models/review.model.js';
@@ -24,13 +24,12 @@ const seed = async () => {
     UserModel.deleteMany({}),
     TrainerProfileModel.deleteMany({}),
     ClientProfileModel.deleteMany({}),
-    WorkoutPlanModel.deleteMany({}),
+    TrainingPlanModel.deleteMany({}),
 
-    SessionBookingModel.deleteMany({}),
+    SessionModel.deleteMany({}),
     ProgressLogModel.deleteMany({}),
     MessageModel.deleteMany({}),
     ReviewModel.deleteMany({}),
-
   ]);
 
   const admin = await UserModel.create({
@@ -82,34 +81,36 @@ const seed = async () => {
     preferences: 'Treinos híbridos, 4x por semana'
   });
 
-  const workoutPlan = await WorkoutPlanModel.create({
+  const workoutPlan = await TrainingPlanModel.create({
     trainerId: trainer._id,
     clientId: client._id,
-    title: 'Bloco Híbrido 8 semanas',
-    description: 'Fase focada em força de membros inferiores e conditioning intervalado.',
-    level: 'intermediate',
-    durationWeeks: 8,
+    name: 'Bloco Híbrido 8 semanas',
+    frequency: 3,
     status: 'active',
-    exercises: [
+    durationWeeks: 8,
+    schedule: [
       {
-        name: 'Agachamento frontal',
-        sets: 4,
-        reps: 6,
-        rest: '120s',
-        notes: 'Tempo 31X1'
-      },
-      {
-        name: 'Remada com barra',
-        sets: 4,
-        reps: 8,
-        rest: '90s'
-      },
-      {
-        name: 'Bike erg sprints',
-        sets: 6,
-        reps: 40,
-        rest: '50s',
-        notes: 'Mantém acima de 90 RPM'
+        dayOfWeek: 1,
+        label: 'Full Body',
+        exercises: [
+          {
+            name: 'Agachamento frontal',
+            sets: 4,
+            reps: '6',
+            instructions: 'Tempo 31X1'
+          },
+          {
+            name: 'Remada com barra',
+            sets: 4,
+            reps: '8'
+          },
+          {
+            name: 'Bike erg sprints',
+            sets: 6,
+            reps: '40',
+            instructions: 'Mantém acima de 90 RPM'
+          }
+        ]
       }
     ]
   });
@@ -117,25 +118,30 @@ const seed = async () => {
 
 
   const upcomingDate = dayjs().add(1, 'day');
-  await SessionBookingModel.create([
+
+  // Create Date objects for start/end times
+  const start1 = upcomingDate.set('hour', 8).set('minute', 0).toDate();
+  const end1 = upcomingDate.set('hour', 9).set('minute', 0).toDate();
+
+  const date2 = dayjs().add(3, 'day');
+  const start2 = date2.set('hour', 18).set('minute', 30).toDate();
+  const end2 = date2.set('hour', 19).set('minute', 15).toDate();
+
+  await SessionModel.create([
     {
-      trainerId: trainer._id,
-      clientId: client._id,
-      date: upcomingDate.format('YYYY-MM-DD'),
-      startTime: '08:00',
-      endTime: '09:00',
-      type: 'online',
-      status: 'confirmed',
+      trainer: trainer._id,
+      client: client._id,
+      startTime: start1,
+      endTime: end1,
+      status: 'scheduled',
       notes: 'Revisão técnica e bloco de força'
     },
     {
-      trainerId: trainer._id,
-      clientId: client._id,
-      date: dayjs().add(3, 'day').format('YYYY-MM-DD'),
-      startTime: '18:30',
-      endTime: '19:15',
-      type: 'presential',
-      status: 'pending'
+      trainer: trainer._id,
+      client: client._id,
+      startTime: start2,
+      endTime: end2,
+      status: 'scheduled'
     }
   ]);
 
