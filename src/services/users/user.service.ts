@@ -40,11 +40,41 @@ export const userService = {
     return user;
   },
 
-  async listUsers(filters: { role?: UserRole; status?: string }) {
+  async listUsers(filters: { role?: UserRole; status?: string; search?: string; page?: number; limit?: number }) {
     const query: FilterQuery<IUser> = {};
     if (filters.role) query.role = filters.role;
     if (filters.status) query.status = filters.status as IUser['status'];
-    return UserModel.find(query).select('-password');
+
+    if (filters.search) {
+      const searchRegex = new RegExp(filters.search, 'i');
+      query.$or = [
+        { name: searchRegex },
+        { email: searchRegex }
+      ];
+    }
+
+    const page = Math.max(1, filters.page || 1);
+    const limit = Math.max(1, filters.limit || 50);
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      UserModel.find(query)
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      UserModel.countDocuments(query)
+    ]);
+
+    return {
+      data: users,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    };
   },
 
   async updateStatus(userId: string, status: IUser['status']) {

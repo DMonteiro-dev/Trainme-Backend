@@ -41,11 +41,20 @@ export const userController = {
   },
 
   adminListUsers: async (req: AuthenticatedRequest, res: Response) => {
-    const filters: { role?: 'admin' | 'trainer' | 'client'; status?: string } = {};
-    if (req.query.role) filters.role = req.query.role as 'admin' | 'trainer' | 'client';
+    const filters: { role?: 'admin' | 'trainer' | 'client'; status?: string; search?: string; page?: number; limit?: number } = {};
+
+    if (req.query.role) filters.role = req.query.role as any;
     if (req.query.status) filters.status = req.query.status as string;
-    const users = await userService.listUsers(filters);
-    return sendSuccess({ res, data: users.map(toAdminUserDTO) });
+    if (req.query.search) filters.search = req.query.search as string;
+    if (req.query.page) filters.page = parseInt(req.query.page as string, 10);
+    if (req.query.limit) filters.limit = parseInt(req.query.limit as string, 10);
+
+    const result = await userService.listUsers(filters);
+    return sendSuccess({
+      res,
+      data: result.data.map(toAdminUserDTO),
+      pagination: result.meta
+    });
   },
 
   adminUpdateStatus: async (req: AuthenticatedRequest, res: Response) => {
