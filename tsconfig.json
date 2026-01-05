@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    /* Ficheiros de entrada/saída */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    /* Ambiente Node */
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": [
+      "ES2022"
+    ],
+    "types": [
+      "node",
+      "jest"
+    ],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    /* Outputs extra */
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    /* Type-checking mais rígido */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+    /* Performance / segurança */
+    "skipLibCheck": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "src"
+  ]
+}
