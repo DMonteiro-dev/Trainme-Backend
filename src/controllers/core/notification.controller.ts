@@ -6,8 +6,11 @@ export const notificationController = {
     async list(req: Request, res: Response, next: NextFunction) {
         try {
             if (!req.user) throw new AppError('Not authenticated', 401);
-            const notifications = await notificationService.listByUser(req.user.id);
-            const unreadCount = await notificationService.getUnreadCount(req.user.id);
+            // Use _id explicitly and convert to string
+            const userId = (req.user._id as any).toString();
+
+            const notifications = await notificationService.listByUser(userId);
+            const unreadCount = await notificationService.getUnreadCount(userId);
 
             res.json({
                 notifications,
@@ -22,8 +25,11 @@ export const notificationController = {
         try {
             if (!req.user) throw new AppError('Not authenticated', 401);
             const { id } = req.params;
+            const userId = (req.user._id as any).toString();
 
-            const updated = await notificationService.markAsRead(id, req.user!._id.toString());
+            if (!id) throw new AppError('Notification ID is required', 400);
+
+            const updated = await notificationService.markAsRead(id, userId);
             if (!updated) throw new AppError('Notification not found', 404);
 
             res.json(updated);
@@ -35,8 +41,9 @@ export const notificationController = {
     async markAllAsRead(req: Request, res: Response, next: NextFunction) {
         try {
             if (!req.user) throw new AppError('Not authenticated', 401);
+            const userId = (req.user._id as any).toString();
 
-            await notificationService.markAllAsRead(req.user.id);
+            await notificationService.markAllAsRead(userId);
             res.json({ success: true });
         } catch (error) {
             next(error);
