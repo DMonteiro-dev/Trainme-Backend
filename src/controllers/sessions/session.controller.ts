@@ -70,7 +70,12 @@ export const updateSession = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     if (!id) throw new AppError('Session ID is required', 400);
 
-    const updates = req.body;
+    // Create a clean updates object from body
+    const updates = { ...req.body };
+
+    // Explicitly remove evidenceImage from text fields to prevent CastError
+    // caused by FormData appending it as string ("{}" or "null")
+    delete updates.evidenceImage;
 
     if (req.file) {
         updates.evidenceImage = `/uploads/${req.file.filename}`;

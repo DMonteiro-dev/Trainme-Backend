@@ -35,6 +35,12 @@ export const messageController = {
     return sendSuccess({ res, data: message });
   },
 
+  markConversationAsRead: async (req: AuthenticatedRequest, res: Response) => {
+    const { userId } = req.params as { userId: string };
+    await messageService.markAllAsRead(req.user!.id, userId);
+    return sendSuccess({ res, data: { success: true } });
+  },
+
   toggleLike: async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params as { id: string };
     const message = await messageService.toggleLike(id, req.user!.id);

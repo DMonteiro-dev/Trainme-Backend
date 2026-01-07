@@ -180,6 +180,14 @@ export const messageService = {
     return message;
   },
 
+  async markAllAsRead(userId: string, otherUserId: string) {
+    await MessageModel.updateMany(
+      { senderId: otherUserId, receiverId: userId, read: false },
+      { read: true }
+    );
+    return { success: true };
+  },
+
   async toggleLike(messageId: string, userId: string) {
     const message = await MessageModel.findById(messageId);
     if (!message) throw new Error('Message not found');

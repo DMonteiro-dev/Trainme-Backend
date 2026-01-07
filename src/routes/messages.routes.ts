@@ -18,6 +18,7 @@ router.post('/', validateRequest({ body: sendSchema }), messageController.send);
 router.get('/conversations', messageController.conversationSummaries);
 router.get('/conversations/:userId', validateRequest({ params: z.object({ userId: z.string().length(24) }) }), messageController.conversationWithUser);
 router.patch('/:id/read', validateRequest({ params: z.object({ id: z.string().length(24) }) }), messageController.markAsRead);
+router.patch('/conversation/:userId/read', validateRequest({ params: z.object({ userId: z.string().length(24) }) }), messageController.markConversationAsRead);
 router.post('/:id/like', validateRequest({ params: z.object({ id: z.string().length(24) }) }), messageController.toggleLike);
 
 export default router;

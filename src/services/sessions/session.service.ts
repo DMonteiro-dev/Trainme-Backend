@@ -112,8 +112,8 @@ export class SessionService {
         const session = await SessionModel.findById(id).populate('client', 'name');
         if (!session) throw new Error('Session not found');
 
-        // Enforce 24h limit for completion
-        if (data.status === 'completed') {
+        // Enforce 24h limit for completion (only if not already completed)
+        if (data.status === 'completed' && session.status !== 'completed') {
             const now = new Date();
             const sessionTime = new Date(session.startTime);
             const hoursDiff = (now.getTime() - sessionTime.getTime()) / (1000 * 60 * 60);
