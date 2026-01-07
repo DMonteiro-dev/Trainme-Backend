@@ -29,12 +29,14 @@ export const trainerChangeRequestController = {
 
   approveRequest: async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params as { id: string };
+    console.log(`[Admin] Approving request ${id} by user ${req.user!.id}`);
     const request = await trainerChangeRequestService.approve(id, req.user!.id);
     return sendSuccess({ res, data: request });
   },
 
   rejectRequest: async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params as { id: string };
+    console.log(`[Admin] Rejecting request ${id} by user ${req.user!.id}`);
     const request = await trainerChangeRequestService.reject(id, req.user!.id);
     return sendSuccess({ res, data: request });
   }
