@@ -13,6 +13,14 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
+    console.log('[EmailService] Attempting to send email to:', to);
+    console.log('[EmailService] Config:', {
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        user: process.env.EMAIL_USER ? '***' : 'missing',
+        pass: process.env.EMAIL_PASS ? '***' : 'missing'
+    });
+
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
         console.warn('Email credentials not found in .env. Email sending skipped.');
         console.log(`[MOCK EMAIL] To: ${to}, Subject: ${subject}, Body: ${html}`);
@@ -20,6 +28,7 @@ export const sendEmail = async ({ to, subject, html }: { to: string; subject: st
     }
 
     try {
+        console.log('[EmailService] Sending via transporter...');
         const info = await transporter.sendMail({
             from: `"TrainMe" <${process.env.EMAIL_USER}>`,
             to,
