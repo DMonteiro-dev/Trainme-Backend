@@ -10,6 +10,11 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
     },
+    logger: true, // Log SMTP exchanges to console
+    debug: true,  // Include debug info
+    connectionTimeout: 10000, // 10 seconds timeout
+    greetingTimeout: 10000,   // 10 seconds to wait for greeting
+    socketTimeout: 10000,     // 10 seconds socket idle timeout
 });
 
 export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
