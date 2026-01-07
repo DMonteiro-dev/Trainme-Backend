@@ -90,7 +90,8 @@ export const authService = {
     user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await user.save({ validateBeforeSave: false });
 
-    const resetURL = `http://localhost:5173/reset-password?token=${resetToken}`;
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const resetURL = `${clientUrl}/reset-password?token=${resetToken}`;
 
     await sendEmail({
       to: user.email,

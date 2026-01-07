@@ -6,15 +6,14 @@ dotenv.config();
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: Number(process.env.EMAIL_PORT) || 2525,
+    secure: Number(process.env.EMAIL_PORT) === 465, // true for 465, false for other ports
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
     },
-    logger: true, // Log SMTP exchanges to console
-    debug: true,  // Include debug info
-    connectionTimeout: 10000, // 10 seconds timeout
-    greetingTimeout: 10000,   // 10 seconds to wait for greeting
-    socketTimeout: 10000,     // 10 seconds socket idle timeout
+    logger: true,
+    debug: true,
+    connectionTimeout: 10000,
 });
 
 export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
