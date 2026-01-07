@@ -1,38 +1,44 @@
-import { MailtrapClient } from 'mailtrap';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Using Mailtrap API instead of SMTP to avoid port blocking
-const token = process.env.MAILTRAP_TOKEN || process.env.EMAIL_PASS; // Using PASS as token fallback for now
-const client = new MailtrapClient({ token: token || 'missing' });
-
-const sender = {
-    name: "TrainMe",
-    email: process.env.EMAIL_FROM || "noreply@trainme.local",
-};
+// Create transporter
+// If SERVICE is set (e.g. 'gmail'), use that. Otherwise use HOST/PORT.
+const transporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE, // e.g. 'gmail'
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT) || 587,
+    secure: Number(process.env.EMAIL_PORT) === 465,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+    logger: true,
+    debug: true,
+    connectionTimeout: 10000,
+});
 
 export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
-    console.log('[EmailService] Attempting to send email via Mailtrap API to:', to);
+    console.log('[EmailService] Attempting to send email to:', to);
 
-    if (!token) {
-        console.warn('Mailtrap API Token not found. Email sending skipped.');
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.warn('Email credentials not found. Email sending skipped.');
         console.log(`[MOCK EMAIL] To: ${to}, Subject: ${subject}, Body: ${html}`);
         return;
     }
 
     try {
-        await client.send({
-            from: sender,
-            to: [{ email: to }],
+        console.log('[EmailService] Sending via transporter...');
+        const info = await transporter.sendMail({
+            from: `"TrainMe" <${process.env.EMAIL_USER}>`,
+            to,
             subject,
             html,
-            category: "Password Reset",
         });
-        console.log('Email sent successfully via API');
+        console.log('Email sent: %s', info.messageId);
     } catch (error) {
-        console.error('Error sending email via API:', error);
-        // Fallback logging
+        console.error('Error sending email:', error);
         console.log(`[MOCK EMAIL (Fallback)] To: ${to}, Subject: ${subject}, Body: ${html}`);
     }
 };
